@@ -36,25 +36,25 @@ void sphere_tracing(Model &model, std::vector<std::vector<Vector3>> &ray_d, std:
     std::vector<std::vector<bool>> &collided, int width, int height){
     // Sphere Tracer TODO: use cuda
     std::vector<std::vector<Vector3>> coords(height, std::vector<Vector3>(width, camera_o));
-    std::vector<std::vector<double>> dists(height, std::vector<double>(width, 0));
+    std::vector<std::vector<double>> old_sdf(height, std::vector<double>(width, 0));
 
     long total_step = 0;
     for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
             // John C. Hart 1995
             double sdf = model.sdf(coords[i][j]);
+            double old_sdf = 1e18;
             int step = 0;
-            while(step < MAX_STEP && sdf > FINISH_MINIMUM && sdf < FINISH_MAXIMUM){
+            while(step < MAX_STEP && sdf > FINISH_MINIMUM && (sdf - old_sdf) < FINISH_MAXIMUM){
                 // printf("\rtimes: %04d : %04d : %04d : %09ld", i, j, step, total_step);
                 // fflush(stdout);
                 coords[i][j] += ray_d[i][j] * sdf;
-                dists[i][j] += sdf;
+                old_sdf = sdf;
                 sdf = model.sdf(coords[i][j]);
                 step += 1;
                 total_step += 1;
             }
             coords[i][j] += ray_d[i][j] * sdf;
-            dists[i][j] += sdf;
             if(std::abs(sdf) <= FINISH_MINIMUM){
                 collided[i][j] = true;
                 nrms[i][j] = model.normal(coords[i][j]);
