@@ -36,7 +36,6 @@ void sphere_tracing(Model &model, std::vector<std::vector<Vector3>> &ray_d, std:
     std::vector<std::vector<bool>> &collided, int width, int height){
     // Sphere Tracer TODO: use cuda
     std::vector<std::vector<Vector3>> coords(height, std::vector<Vector3>(width, camera_o));
-    std::vector<std::vector<double>> old_sdf(height, std::vector<double>(width, 0));
 
     long total_step = 0;
     for(int i = 0; i < height; i++){
